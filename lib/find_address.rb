@@ -2,16 +2,13 @@
 class FindAddressHelper
   
   def self.find_address(email)
-    past = Order.order("created_at").where(:email => email).limit(5)
-    bill_address , ship_address = nil , nil
-    past.each do |order|
-      if order.bill_address
-        bill_address = order.bill_address.clone
-        ship_address = order.ship_address.clone
-      end
-      # puts "Found address= #{bill_address} "
+    past = Order.order("id desc").where(:email => email).where("state != 'cart'").limit(8)
+    bill_address, ship_address = nil , nil
+    if order = past.detect(&:bill_address)
+      bill_address = order.bill_address.clone if order.bill_address
+      ship_address = order.ship_address.clone if order.ship_address
     end
-    return bill_address , ship_address
+    return bill_address, ship_address
   end
   
   def self.set_params(hash , address )
